@@ -1,0 +1,25 @@
+version: "3.9"
+services:
+  cli:
+    environment:
+      - CHOKIDAR_USEPOLLING
+    labels:
+      - io.docksal.virtual-host=${VIRTUAL_HOST}
+      - io.docksal.virtual-port=8000
+    expose:
+      - '8000'
+    ports:
+      - '3000:3000'
+      - '8080:8080'
+  static:
+    hostname: static
+    extends:
+      file: ${HOME}/.docksal/stacks/services.yml
+      service: apache
+    image: docksal/apache:2.4-2.4
+    volumes:
+      - project_root:/var/www:ro,nocopy,cached
+    labels:
+      - io.docksal.virtual-host=static.${VIRTUAL_HOST}
+    environment:
+      - APACHE_DOCUMENTROOT=/var/www/twitch-things/dist

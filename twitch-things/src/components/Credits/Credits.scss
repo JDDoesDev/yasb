@@ -1,0 +1,41 @@
+.credits {
+
+
+  &_wrapper {
+    padding: 2rem 2rem;
+  }
+  &_h1 {
+    font-size: 4rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+  }
+
+  &_h2 {
+    font-size: 3rem;
+    font-weight: 700;
+    margin-bottom: 1rem;
+    text-transform: uppercase;
+  }
+
+  &_list {
+    padding: 0;
+  }
+
+  &_item {
+    list-style: none;
+    font-size: 2rem;
+    font-weight: 700;
+    padding: 0.5rem 0;
+  }
+
+}
+
+@keyframes credits {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-100%);
+  }
+
+}

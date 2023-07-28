@@ -1,0 +1,38 @@
+.message {
+  height: 95vh;
+  width: 100%;
+  max-width: 25rem;
+
+  &-container {
+    height: 100%;
+    padding-bottom: 1rem;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+  }
+
+  &-item {
+    list-style-type: none;
+    background-color: #23D53B;
+    list-style-type: none;
+    display: block;
+    margin: 1rem 0 0;
+    border-radius: 5px;
+  }
+
+  &-username {
+    display: block;
+    padding: 0.5rem;
+    font-weight: bold;
+  }
+
+  &-message {
+    display: block;
+    background: rgb(30,33,39);
+    color: rgb(185, 187, 191);
+    margin: 0.25rem;
+    padding: 0.5rem;
+    border-radius: 5px;
+    overflow-wrap: break-word;
+  }
+}
