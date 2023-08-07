@@ -1,4 +1,4 @@
-import TwitchChatBot from './TwitchChatv2'
+import TwitchChatBot from './components/TwitchChatBot/TwitchChatBot'
 
 
 function App() {

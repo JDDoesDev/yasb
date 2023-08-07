@@ -60,18 +60,18 @@ const eventSub = (chatClient: ChatClient) => {
           }
           break;
       }
-      setNewBits(e.bits, e.userDisplayName ?? '');
+      setNewBits(e.bits, e.userDisplayName ?? '', e.userName);
     }
   });
 
   const followSubscribe = listener.onChannelFollow(uid, uid, (e) => {
     chatClient.say('jddoesdev', `A new follower arrives: ${e.userDisplayName}! Welcome to whatever this is!`);
-    setNewFollows(e.userDisplayName);
+    setNewFollows(e.userDisplayName, e.userName);
   });
 
   const subSubscribe = listener.onChannelSubscription(uid, (e) => {
     chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
-    setNewSubs(e.userDisplayName)
+    setNewSubs(e.userDisplayName, e.userName)
   });
   // Dear future me,
   // Please fix present me's code. It's bad. I'm sorry.
@@ -83,7 +83,7 @@ const eventSub = (chatClient: ChatClient) => {
           "jddoesdev",
           `${e.userDisplayName} resubscribed and had this to say: ${e.messageText}... They've subscribed for ${e.streakMonths} months in a row! Thank you!`
         );
-        setNewSubs(e.userDisplayName, e.cumulativeMonths, e.streakMonths ?? 1);
+        setNewSubs(e.userDisplayName, e.userName, e.cumulativeMonths, e.streakMonths ?? 1);
       }
     }
   );

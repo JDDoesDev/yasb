@@ -4,21 +4,29 @@ const prisma = new PrismaClient({
 });
 const _date = new Date().toDateString();
 console.log(_date);
-export const setNewFollows = async (follower) => {
+export const setNewFollows = async (userDisplayName, userName) => {
     // check if follower exists in db and if not, add them.
     // otherwise update.
-    // const _date = new Date().toISOString();
     try {
-        await prisma.follows.upsert({
+        await prisma.user.upsert({
             where: {
-                follower: follower
+                userName: userName,
             },
             update: {
-                followDate: _date
+                follows: {
+                    create: {
+                        followDate: _date,
+                    },
+                },
             },
             create: {
-                follower: follower,
-                followDate: _date
+                userName: userName,
+                userDisplayName: userDisplayName,
+                follows: {
+                    create: {
+                        followDate: _date,
+                    }
+                }
             }
         });
     }
@@ -26,34 +34,34 @@ export const setNewFollows = async (follower) => {
         console.log(error);
     }
 };
-export const setNewSubs = async (subscriber, totMonths = 1, streak = 1) => {
+export const setNewSubs = async (userDisplayName, userName, totMonths = 1, streak = 1) => {
     // check if subscriber exists in db and if not, add them.
     // otherwise update.
     // const _date = new Date().toISOString();
     try {
         await prisma.subs.upsert({
             where: {
-                sub: subscriber
+                sub: subscriber,
             },
             update: {
                 streak: streak,
                 subDateRenew: _date,
-                totMonths: totMonths
+                totMonths: totMonths,
             },
             create: {
                 sub: subscriber,
                 subDateOrig: _date,
                 streak: 1,
                 subDateRenew: _date,
-                totMonths: totMonths
-            }
+                totMonths: totMonths,
+            },
         });
     }
     catch (error) {
         console.log(error);
     }
 };
-export const setNewBits = async (bits, user = '') => {
+export const setNewBits = async (bits, userDisplayName = "", userName) => {
     // check if user exists in db and if not, add them.
     // otherwise update.
     // const _date = new Date().toISOString();
@@ -63,7 +71,7 @@ export const setNewBits = async (bits, user = '') => {
                 user: user,
                 bitCount: bits,
                 cheerDate: _date,
-            }
+            },
         });
     }
     catch (error) {
@@ -89,7 +97,7 @@ export const setGiftSubs = async (gifter, amount, totAmount) => {
                 lastGiftDate: _date,
                 amount: amount,
                 totAmount: totAmount !== null && totAmount !== void 0 ? totAmount : amount,
-            }
+            },
         });
     }
     catch (error) {
@@ -103,8 +111,8 @@ export const getNewFollows = async () => {
         console.log(`HERE BE THE DATE!!! YAR!!! ${_date}`);
         const follows = await prisma.follows.findMany({
             where: {
-                followDate: _date
-            }
+                followDate: _date,
+            },
         });
         return follows;
     }
@@ -118,8 +126,8 @@ export const getNewSubs = async () => {
     try {
         const subs = await prisma.subs.findMany({
             where: {
-                subDateOrig: _date
-            }
+                subDateOrig: _date,
+            },
         });
         return subs;
     }
@@ -133,8 +141,8 @@ export const getResubs = async () => {
     try {
         const subs = await prisma.subs.findMany({
             where: {
-                subDateRenew: _date
-            }
+                subDateRenew: _date,
+            },
         });
         return subs;
     }
@@ -148,7 +156,7 @@ export const getNewBits = async () => {
     try {
         const bits = await prisma.bits.findMany({
             where: {
-                cheerDate: _date
+                cheerDate: _date,
             },
         });
         return bits;
@@ -163,10 +171,32 @@ export const getGiftSubs = async () => {
     try {
         const giftSubs = await prisma.giftSubs.findMany({
             where: {
-                lastGiftDate: _date
-            }
+                lastGiftDate: _date,
+            },
         });
         return giftSubs;
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+export const setCredentials = async (clientId, clientSecret) => {
+    // check if credentials exist in db and if not, add them.
+    // otherwise update.
+    // const _date = new Date().toISOString();
+    try {
+        await prisma.credentials.upsert({
+            where: {
+                clientId: clientId,
+            },
+            update: {
+                clientSecret: clientSecret,
+            },
+            create: {
+                clientId: clientId,
+                clientSecret: clientSecret,
+            },
+        });
     }
     catch (error) {
         console.log(error);

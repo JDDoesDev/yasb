@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Follower, Sub, Bit } from './Credits.types'
 import './Credits.scss';
-import axios from 'axios';
+import apiConnector from '../../utils/apiConnector';
 
 
 const Credits = () => {
@@ -15,12 +15,12 @@ const Credits = () => {
   const [creditsCount, setCreditsCount] = useState<number>(0);
   const [gotCreditsCount, setGotCreditsCount] = useState<boolean>(false);
 
-  const url = 'http://127.0.0.1:3000';
+  const url = 'http://127.0.0.1:3321';
 
   // Poll database for new follows
   const getFollows = async () => {
     try {
-      const response = await axios.get(`${url}/api/follows`);
+      const response = await apiConnector.get(`/api/follows`);
       setGotFollows(true);
       setFollows(response.data);
     } catch (error) {
@@ -30,7 +30,7 @@ const Credits = () => {
 
   const getSubs = async () => {
     try {
-      const response = await axios.get(`${url}/api/subs`);
+      const response = await apiConnector.get(`/api/subs`);
       setSubs(response.data)
       setGotSubs(true);
     } catch (error) {
@@ -40,7 +40,7 @@ const Credits = () => {
 
   const getBits = async () => {
     try {
-      const response = await axios.get(`${url}/api/bits`);
+      const response = await apiConnector.get(`/api/bits`);
       setBits(response.data);
       setGotBits(true);
     } catch (error) {

@@ -13,14 +13,16 @@ datasource db {
 model Follows {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now())
-  follower   String   @unique
+  follower   User     @relation(fields: [followerId], references: [id])
+  followerId Int      @unique
   followDate String
 }
 
 model Subs {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
-  sub          String   @unique
+  sub          User     @relation(fields: [subId], references: [id])
+  subId        Int    @unique
   subDateOrig  String
   subDateRenew String
   streak       Int
@@ -30,7 +32,8 @@ model Subs {
 model Bits {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  user      String
+  user      User     @relation(fields: [userId], references: [id])
+  userId    Int
   cheerDate String
   bitCount  Int
 }
@@ -38,8 +41,38 @@ model Bits {
 model GiftSubs {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
-  gifter       String   @unique
+  gifter       User     @relation(fields: [gifterId], references: [id])
+  gifterId     Int      @unique
   amount       Int
   totAmount    Int
   lastGiftDate String
+}
+model Credentials {
+  id           Int      @id @default(autoincrement())
+  clientId     String   @unique
+  clientSecret String   @unique
+}
+
+model Tokens {
+  id           Int      @id @default(autoincrement())
+  userId       Int
+  isBroadcaster Boolean
+  accessToken  String
+  refreshToken String
+  obtainmentTimestamp Int
+  expiresIn    Int
+  scope        String
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userName  String   @unique
+  userDisplayName String
+  badges    String?
+  profileImageUrl String?
+  subs      Subs?
+  follows   Follows?
+  bits      Bits[]
+  giftSubs  GiftSubs?
 }

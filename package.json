@@ -1,0 +1,12 @@
+{
+  "name": "yasb",
+  "packageManager": "yarn@1.22.19",
+  "private": true,
+  "workspaces": [
+    "react/",
+    "node-server/"
+  ],
+  "devDependencies": {
+    "concurrently": "^8.2.0"
+  }
+}

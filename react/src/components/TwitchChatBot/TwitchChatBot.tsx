@@ -1,4 +1,3 @@
-import tmi, { ChatUserstate } from 'tmi.js';
 import { useEffect, useState, FC } from 'react'
 
 interface MessageObject {

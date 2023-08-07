@@ -1,26 +1,31 @@
 
 import ReactDOM from 'react-dom/client'
 import './main.scss'
+import './tailwind.css'
 import { RouterProvider, createBrowserRouter } from "react-router-dom";
-import TwitchChatBot from './TwitchChatv2.tsx';
-import DonkeyKong from './DonkeyKong.tsx';
+import TwitchChatBot from './components/TwitchChatBot/TwitchChatBot.tsx';
 import Credits from './components/Credits/Credits.tsx';
+import Credentials from './components/Credentials/Credentials.tsx';
+import { Theme } from 'react-daisyui';
 
 const router = createBrowserRouter([
   {
     path: "/",
-    element: <TwitchChatBot />,
+    element: <Credentials />,
   },
   {
-    path: "/dk",
-    element: <DonkeyKong />,
+    path: "/chatbot",
+    element: <TwitchChatBot />,
   },
   {
     path: "/credits",
     element: <Credits />,
   }
 
+
 ]);
 ReactDOM.createRoot(document.getElementById('root') as HTMLElement).render(
-  <RouterProvider router={router} />
+  <Theme dataTheme='synthwave'>
+    <RouterProvider router={router} />
+  </Theme>
 )

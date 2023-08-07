@@ -2,7 +2,7 @@ import { ApiClient } from "@twurple/api";
 import authProvider from "./services/botAuthService";
 import eventSub from "./events/eventSub";
 import { ChatClient } from "@twurple/chat";
-import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits } from "./services/prismaService";
+import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials } from "./services/prismaService";
 import ObsConnect from "./ws/wsObs";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
@@ -80,7 +80,11 @@ const App = () => {
         const bits = await getNewBits();
         reply.send(bits);
     });
-    fastify.listen({ port: 3000 }, (err, address) => {
+    fastify.post('/api/credentials', async (request, reply) => {
+        const { clientId, clientSecret } = request.body;
+        const credentials = await setCredentials(clientId, clientSecret);
+    });
+    fastify.listen({ port: 3321 }, (err, address) => {
         if (err)
             throw err;
         console.log(`Server is now listening on ${address}`);
