@@ -43,17 +43,18 @@ model GiftSubs {
   createdAt    DateTime @default(now())
   gifter       User     @relation(fields: [gifterId], references: [id])
   gifterId     Int      @unique
-  amount       Int
   totAmount    Int
   lastGiftDate String
+  lastGiftSubs Int
 }
-model Credentials {
+
+model Credentials { // Credentials for the Twitch API provided by Twitch
   id           Int      @id @default(autoincrement())
   clientId     String   @unique
   clientSecret String   @unique
 }
 
-model Tokens {
+model Tokens { // Tokens for the Twitch API provided by Twitch with refresh.
   id           Int      @id @default(autoincrement())
   userId       Int
   isBroadcaster Boolean

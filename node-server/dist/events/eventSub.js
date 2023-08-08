@@ -26,11 +26,14 @@ const eventSub = (chatClient) => {
                 msg += ` That's ${e.cumulativeAmount} subs total!`;
             }
             chatClient.say('jddoesdev', msg);
-            setGiftSubs(e.gifterDisplayName, e.amount, e.cumulativeAmount);
+            setGiftSubs(e.gifterName, e.gifterDisplayName, e.amount, e.cumulativeAmount);
+        }
+        else {
+            chatClient.say('jddoesdev', `An anonymous user gifted ${e.amount} subs!`);
         }
     });
     const bitsSubscribe = listener.onChannelCheer(uid, (e) => {
-        var _a;
+        var _a, _b;
         if (!e.isAnonymous) {
             switch (e.bits) {
                 case 69:
@@ -48,7 +51,7 @@ const eventSub = (chatClient) => {
                     }
                     break;
             }
-            setNewBits(e.bits, (_a = e.userDisplayName) !== null && _a !== void 0 ? _a : '', e.userName);
+            setNewBits(e.bits, (_a = e.userDisplayName) !== null && _a !== void 0 ? _a : '', (_b = e.userName) !== null && _b !== void 0 ? _b : '');
         }
     });
     const followSubscribe = listener.onChannelFollow(uid, uid, (e) => {
@@ -56,8 +59,10 @@ const eventSub = (chatClient) => {
         setNewFollows(e.userDisplayName, e.userName);
     });
     const subSubscribe = listener.onChannelSubscription(uid, (e) => {
-        chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
-        setNewSubs(e.userDisplayName, e.userName);
+        if (!e.isGift) {
+            chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
+            setNewSubs(e.userDisplayName, e.userName);
+        }
     });
     // Dear future me,
     // Please fix present me's code. It's bad. I'm sorry.

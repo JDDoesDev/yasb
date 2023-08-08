@@ -4,7 +4,7 @@ import eventSub from "./events/eventSub";
 import { ChatClient, PrivateMessage } from "@twurple/chat";
 import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials } from "./services/prismaService";
 import ObsConnect from "./ws/wsObs";
-import Fastify from "fastify";
+import Fastify, { FastifyRequest } from "fastify";
 import cors from "@fastify/cors"
 
 
@@ -12,6 +12,11 @@ interface Message {
   channel: string,
   user?: string,
   text?: string
+}
+
+interface CredentialBody {
+  clientId: string,
+  clientSecret: string,
 }
 
 const helixClient = new ApiClient({ authProvider });
@@ -121,8 +126,9 @@ const App = () => {
   });
 
   fastify.post('/api/credentials', async (request, reply) => {
-    const { clientId, clientSecret } = request.body;
-    const credentials = await setCredentials(clientId, clientSecret);
+    const body: CredentialBody = request.body as CredentialBody;
+    console.log(body);
+    const credentials = await setCredentials(body.clientId, body.clientSecret);
   });
 
   fastify.listen({ port: 3321}, (err, address) => {
@@ -135,4 +141,3 @@ const App = () => {
 }
 
 App();
-

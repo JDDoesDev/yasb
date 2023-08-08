@@ -81,8 +81,9 @@ const App = () => {
         reply.send(bits);
     });
     fastify.post('/api/credentials', async (request, reply) => {
-        const { clientId, clientSecret } = request.body;
-        const credentials = await setCredentials(clientId, clientSecret);
+        const body = request.body;
+        console.log(body);
+        const credentials = await setCredentials(body.clientId, body.clientSecret);
     });
     fastify.listen({ port: 3321 }, (err, address) => {
         if (err)

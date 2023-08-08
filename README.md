@@ -22,6 +22,9 @@ Sure, there will be one.  I promise.  Just not quite yet, but it's in my head!
 Alpha - Web app interface with data not hard-coded:
 
 - [ ] Update to use Twurple.js in front and back end.
+  - [X] Save Twitch API and Secret Key to Database
+  - [ ] Save Oauth/Refresh token data to database
+  - [ ] Call Token data from database for refreshing
 - [ ] Move user data to database
 - [ ] Create valid schema and relationships for database
 - [ ] Recreate chat box element

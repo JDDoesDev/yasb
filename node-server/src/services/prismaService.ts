@@ -57,11 +57,19 @@ export const setNewSubs = async (
       },
       update: {
         subs: {
-          create: {
-            streak: streak,
-            subDateRenew: _date,
-            subDateOrig: _date,
-            totMonths: totMonths,
+          upsert: {
+            create: {
+              streak: streak,
+              subDateRenew: _date,
+              subDateOrig: _date,
+              totMonths: totMonths,
+            },
+            update: {
+              streak: streak,
+              subDateRenew: _date,
+              totMonths: totMonths,
+            },
+
           },
         },
       },
@@ -101,6 +109,8 @@ export const setNewBits = async (
 
     if (result) {
       user = result.userName;
+    } else {
+      user = userName ?? null;
     }
 
     if (user) {
@@ -130,6 +140,7 @@ export const setNewBits = async (
 
 export const setGiftSubs = async (
   gifter: string,
+  gifterDisplayName: string,
   amount: number,
   totAmount: number | null
 ) => {
@@ -138,20 +149,36 @@ export const setGiftSubs = async (
   // const _date = new Date().toISOString();
 
   try {
-    await prisma.giftSubs.upsert({
+    await prisma.user.upsert({
       where: {
-        gifter: gifter,
+        userName: gifter,
       },
       update: {
-        lastGiftDate: _date,
-        amount: amount,
-        totAmount: totAmount ?? amount,
+        giftSubs: {
+          upsert: {
+            create: {
+              lastGiftDate: _date,
+              lastGiftSubs: amount,
+              totAmount: totAmount ?? amount,
+            },
+            update: {
+              lastGiftDate: _date,
+              lastGiftSubs: amount,
+              totAmount: totAmount ?? amount,
+            },
+          },
+        },
       },
       create: {
-        gifter: gifter,
-        lastGiftDate: _date,
-        amount: amount,
-        totAmount: totAmount ?? amount,
+        userName: gifter,
+        userDisplayName: gifterDisplayName,
+        giftSubs: {
+          create: {
+            lastGiftDate: _date,
+            lastGiftSubs: amount,
+            totAmount: totAmount ?? amount,
+          },
+        },
       },
     });
   } catch (error) {

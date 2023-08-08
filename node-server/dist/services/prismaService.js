@@ -39,21 +39,38 @@ export const setNewSubs = async (userDisplayName, userName, totMonths = 1, strea
     // otherwise update.
     // const _date = new Date().toISOString();
     try {
-        await prisma.subs.upsert({
+        await prisma.user.upsert({
             where: {
-                sub: subscriber,
+                userName: userName,
             },
             update: {
-                streak: streak,
-                subDateRenew: _date,
-                totMonths: totMonths,
+                subs: {
+                    upsert: {
+                        create: {
+                            streak: streak,
+                            subDateRenew: _date,
+                            subDateOrig: _date,
+                            totMonths: totMonths,
+                        },
+                        update: {
+                            streak: streak,
+                            subDateRenew: _date,
+                            totMonths: totMonths,
+                        },
+                    },
+                },
             },
             create: {
-                sub: subscriber,
-                subDateOrig: _date,
-                streak: 1,
-                subDateRenew: _date,
-                totMonths: totMonths,
+                userName: userName,
+                userDisplayName: userDisplayName,
+                subs: {
+                    create: {
+                        streak: streak,
+                        subDateOrig: _date,
+                        subDateRenew: _date,
+                        totMonths: totMonths,
+                    }
+                }
             },
         });
     }
@@ -61,42 +78,84 @@ export const setNewSubs = async (userDisplayName, userName, totMonths = 1, strea
         console.log(error);
     }
 };
-export const setNewBits = async (bits, userDisplayName = "", userName) => {
+export const setNewBits = async (bits, userDisplayName = "", userName = "") => {
     // check if user exists in db and if not, add them.
     // otherwise update.
     // const _date = new Date().toISOString();
+    let user = null;
     try {
-        await prisma.bits.create({
-            data: {
-                user: user,
-                bitCount: bits,
-                cheerDate: _date,
+        const result = await prisma.user.findUnique({
+            where: {
+                userName: userName,
             },
         });
+        if (result) {
+            user = result.userName;
+        }
+        else {
+            user = userName !== null && userName !== void 0 ? userName : null;
+        }
+        if (user) {
+            await prisma.bits.create({
+                data: {
+                    bitCount: bits,
+                    cheerDate: _date,
+                    user: {
+                        connectOrCreate: {
+                            where: {
+                                userName: user,
+                            },
+                            create: {
+                                userName: user,
+                                userDisplayName: userDisplayName,
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        ;
     }
     catch (error) {
         console.log(error);
     }
+    ;
 };
-export const setGiftSubs = async (gifter, amount, totAmount) => {
+export const setGiftSubs = async (gifter, gifterDisplayName, amount, totAmount) => {
     // check if gifter exists in db and if not, add them.
     // otherwise update.
     // const _date = new Date().toISOString();
     try {
-        await prisma.giftSubs.upsert({
+        await prisma.user.upsert({
             where: {
-                gifter: gifter,
+                userName: gifter,
             },
             update: {
-                lastGiftDate: _date,
-                amount: amount,
-                totAmount: totAmount !== null && totAmount !== void 0 ? totAmount : amount,
+                giftSubs: {
+                    upsert: {
+                        create: {
+                            lastGiftDate: _date,
+                            lastGiftSubs: amount,
+                            totAmount: totAmount !== null && totAmount !== void 0 ? totAmount : amount,
+                        },
+                        update: {
+                            lastGiftDate: _date,
+                            lastGiftSubs: amount,
+                            totAmount: totAmount !== null && totAmount !== void 0 ? totAmount : amount,
+                        },
+                    },
+                },
             },
             create: {
-                gifter: gifter,
-                lastGiftDate: _date,
-                amount: amount,
-                totAmount: totAmount !== null && totAmount !== void 0 ? totAmount : amount,
+                userName: gifter,
+                userDisplayName: gifterDisplayName,
+                giftSubs: {
+                    create: {
+                        lastGiftDate: _date,
+                        lastGiftSubs: amount,
+                        totAmount: totAmount !== null && totAmount !== void 0 ? totAmount : amount,
+                    },
+                },
             },
         });
     }

@@ -38,8 +38,11 @@ const eventSub = (chatClient: ChatClient) => {
         msg += ` That's ${e.cumulativeAmount} subs total!`;
       }
       chatClient.say('jddoesdev', msg);
-      setGiftSubs(e.gifterDisplayName, e.amount, e.cumulativeAmount);
+      setGiftSubs(e.gifterName, e.gifterDisplayName, e.amount, e.cumulativeAmount);
+    } else {
+      chatClient.say('jddoesdev', `An anonymous user gifted ${e.amount} subs!`);
     }
+
   });
 
   const bitsSubscribe = listener.onChannelCheer(uid, (e) => {
@@ -60,7 +63,7 @@ const eventSub = (chatClient: ChatClient) => {
           }
           break;
       }
-      setNewBits(e.bits, e.userDisplayName ?? '', e.userName);
+      setNewBits(e.bits, e.userDisplayName ?? '', e.userName ?? '');
     }
   });
 
@@ -70,8 +73,10 @@ const eventSub = (chatClient: ChatClient) => {
   });
 
   const subSubscribe = listener.onChannelSubscription(uid, (e) => {
-    chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
-    setNewSubs(e.userDisplayName, e.userName)
+    if (!e.isGift) {
+      chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
+      setNewSubs(e.userDisplayName, e.userName)
+    }
   });
   // Dear future me,
   // Please fix present me's code. It's bad. I'm sorry.
