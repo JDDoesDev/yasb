@@ -3,7 +3,6 @@ const prisma = new PrismaClient({
     log: ["query", "info", "warn", "error"],
 });
 const _date = new Date().toDateString();
-console.log(_date);
 export const setNewFollows = async (userDisplayName, userName) => {
     // check if follower exists in db and if not, add them.
     // otherwise update.
@@ -256,6 +255,17 @@ export const setCredentials = async (clientId, clientSecret) => {
                 clientSecret: clientSecret,
             },
         });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+export const getCredentials = async () => {
+    // get credentials from db
+    // return credentials
+    try {
+        const credentials = await prisma.credentials.findFirst();
+        return credentials;
     }
     catch (error) {
         console.log(error);

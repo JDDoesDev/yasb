@@ -1,10 +1,15 @@
-import * as dotenv from 'dotenv';
-dotenv.config();
 import { RefreshingAuthProvider } from "@twurple/auth";
 import { promises as fs } from "fs";
+import { getCredentials } from "./prismaService";
 
-const clientId  = process.env.CLIENT_ID ?? 'test';
-const clientSecret = process.env.ACCESS_TOKEN ?? 'test';
+interface CredentialBody {
+  id: number;
+  clientId: string;
+  clientSecret: string;
+};
+
+const { clientId, clientSecret }: CredentialBody = await getCredentials() as CredentialBody;
+
 const tokenData = JSON.parse(
   await fs.readFile("./tokens/tokens.911278001.json", "utf-8")
 );
@@ -20,6 +25,6 @@ const authProvider = new RefreshingAuthProvider({
     ),
 });
 
-await authProvider.addUserForToken(tokenData, ['chat']);
+await authProvider.addUserForToken(tokenData, ["chat"]);
 
 export default authProvider;

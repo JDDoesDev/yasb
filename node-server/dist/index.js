@@ -27,6 +27,7 @@ const App = () => {
                         const soHandler = (soUserObj) => {
                             if (soUserObj) {
                                 chatClient.say(channel, `Go check out ${soUserObj.displayName} at https://twitch.tv/${soUserObj.name}`);
+                                // Can we get shoutout cooldown?
                                 helixClient.chat.shoutoutUser(broadcastObj.id, soUserObj.id, botObj.id);
                             }
                         };

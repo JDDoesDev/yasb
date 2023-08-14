@@ -287,4 +287,16 @@ export const setCredentials = async (
   } catch (error) {
     console.log(error);
   }
+
 };
+
+export const getCredentials = async () => {
+  // get credentials from db
+  // return credentials
+  try {
+    const credentials = await prisma.credentials.findFirst();
+    return credentials;
+  } catch (error) {
+    console.log(error);
+  }
+}

@@ -14,11 +14,6 @@ const eventSub = (chatClient: ChatClient) => {
 
   const apiClient = new ApiClient({ authProvider });
 
-  // const getUid = async () => await apiClient.users.getUserByName('jddoesdev');
-
-  // getUid().then(user => user)
-  //   .then(console.log)
-
   const listener = new EventSubWsListener({
     apiClient
   });
@@ -95,6 +90,10 @@ const eventSub = (chatClient: ChatClient) => {
 
   const streamLive = listener.onStreamOnline(uid, (e) => {
     chatClient.say('jddoesdev', `Stream is live!`);
+  });
+
+  const shoutoutCreated = listener.onChannelShoutoutCreate(uid, uid, (e) => {
+
   });
 }
 

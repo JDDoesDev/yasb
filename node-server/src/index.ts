@@ -53,6 +53,7 @@ const App = () => {
                     channel,
                     `Go check out ${soUserObj.displayName} at https://twitch.tv/${soUserObj.name}`
                   );
+                  // Can we get shoutout cooldown?
                   helixClient.chat.shoutoutUser(
                     broadcastObj!.id,
                     soUserObj.id,
