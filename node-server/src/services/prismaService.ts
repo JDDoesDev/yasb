@@ -1,10 +1,10 @@
 import { PrismaClient } from "@prisma/client";
+import { TokenBody } from "../types/Credentials.types";
 
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
 });
 const _date = new Date().toDateString();
-console.log(_date);
 
 export const setNewFollows = async (
   userDisplayName: string,
@@ -190,7 +190,6 @@ export const getNewFollows = async () => {
   // get all follows from db
   // return follows
   try {
-    console.log(`HERE BE THE DATE!!! YAR!!! ${_date}`);
     const follows = await prisma.follows.findMany({
       where: {
         followDate: _date,
@@ -274,7 +273,7 @@ export const setCredentials = async (
   try {
     await prisma.credentials.upsert({
       where: {
-        clientId: clientId,
+        id: 1,
       },
       update: {
         clientSecret: clientSecret,
@@ -283,7 +282,7 @@ export const setCredentials = async (
         clientId: clientId,
         clientSecret: clientSecret,
       },
-    });
+    }).then();
   } catch (error) {
     console.log(error);
   }
@@ -294,9 +293,59 @@ export const getCredentials = async () => {
   // get credentials from db
   // return credentials
   try {
-    const credentials = await prisma.credentials.findFirst();
+    const credentials = await prisma.credentials.findFirstOrThrow();
     return credentials;
   } catch (error) {
     console.log(error);
   }
+}
+
+export const setToken = async (isBroadcaster: boolean, token: TokenBody) => {
+  // check if token exists in db and if not, add them.
+  // also updates/refreshes token.
+  try {
+    await prisma.tokens.upsert({
+      where: {
+        isBroadcaster: isBroadcaster,
+      },
+      update: {
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+        expiresIn: token.expiresIn,
+        isBroadcaster: isBroadcaster,
+        scope: token.scope,
+      },
+      create: {
+        accessToken: token.accessToken,
+        refreshToken: token.refreshToken,
+        expiresIn: 0,
+        isBroadcaster: isBroadcaster,
+        scope: token.scope,
+        obtainmentTimestamp: 0,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
+
+export const getToken = async (isBroadcaster: boolean) => {
+  // get token from db
+  // return token
+  let token: TokenBody | object = [];
+  try {
+    token = await prisma.tokens.findMany({
+      where: {
+        isBroadcaster: isBroadcaster,
+      }
+    })
+  } catch (error) {
+    console.log(error);
+  }
+  return token;
+
+}
+
+export const getUserId = (isBroadcaster: boolean) => {
+
 }

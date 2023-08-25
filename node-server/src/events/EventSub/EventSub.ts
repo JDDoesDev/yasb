@@ -1,13 +1,13 @@
-import authProvider from "../services/userAuthService";
+import authProvider from "../../services/userAuthService";
 import { ApiClient } from "@twurple/api";
 import { ChatClient } from "@twurple/chat";
 import { EventSubWsListener } from "@twurple/eventsub-ws";
-import { setNewFollows, setNewBits, setNewSubs, setGiftSubs } from "../services/prismaService";
-import ObsConnect from "../ws/wsObs";
+import { setNewFollows, setNewBits, setNewSubs, setGiftSubs } from "../../services/prismaService";
+import ObsConnect from "../../ws/wsObs";
 
 const obs = await ObsConnect();
 
-const eventSub = (chatClient: ChatClient) => {
+const EventSub = (chatClient: ChatClient) => {
 
   const uid = "216709612";
   const bid = "911278001";
@@ -97,4 +97,4 @@ const eventSub = (chatClient: ChatClient) => {
   });
 }
 
-export default eventSub;
+export default EventSub;

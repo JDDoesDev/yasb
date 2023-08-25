@@ -3,6 +3,7 @@ const prisma = new PrismaClient({
     log: ["query", "info", "warn", "error"],
 });
 const _date = new Date().toDateString();
+console.log(_date);
 export const setNewFollows = async (userDisplayName, userName) => {
     // check if follower exists in db and if not, add them.
     // otherwise update.
@@ -166,6 +167,7 @@ export const getNewFollows = async () => {
     // get all follows from db
     // return follows
     try {
+        console.log(`HERE BE THE DATE!!! YAR!!! ${_date}`);
         const follows = await prisma.follows.findMany({
             where: {
                 followDate: _date,
@@ -244,7 +246,7 @@ export const setCredentials = async (clientId, clientSecret) => {
     try {
         await prisma.credentials.upsert({
             where: {
-                id: 1,
+                clientId: clientId,
             },
             update: {
                 clientSecret: clientSecret,
@@ -253,7 +255,7 @@ export const setCredentials = async (clientId, clientSecret) => {
                 clientId: clientId,
                 clientSecret: clientSecret,
             },
-        }).then(console.log);
+        });
     }
     catch (error) {
         console.log(error);
@@ -263,28 +265,11 @@ export const getCredentials = async () => {
     // get credentials from db
     // return credentials
     try {
-        const credentials = await prisma.credentials.findFirstOrThrow();
+        const credentials = await prisma.credentials.findFirst();
+        console.log(credentials);
         return credentials;
     }
     catch (error) {
         console.log(error);
     }
-};
-export const setToken = async (userType, token) => {
-};
-export const getToken = async (isBroadcaster) => {
-    // get token from db
-    // return token
-    let token = [];
-    try {
-        token = await prisma.tokens.findMany({
-            where: {
-                isBroadcaster: isBroadcaster,
-            }
-        });
-    }
-    catch (error) {
-        console.log(error);
-    }
-    return token;
 };

@@ -1,10 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, Form, Button } from 'react-daisyui'
 import apiConnector from '../../utils/apiConnector'
+import TwitchAuthButton from './TwitchAuthButton'
 
 const Credentials = () => {
+
   const [clientId, setClientId] = useState<string>('')
   const [clientSecret, setClientSecret] = useState<string>('')
+
+  useEffect(() => {
+    if (clientId === '' || clientSecret === '') {
+    apiConnector.get('/api/credentials')
+      .then((res) => { setClientId(res.data.clientId); setClientSecret(res.data.clientSecret)})
+      .catch((err) => console.error(err))
+    }
+  })
 
   const handleClientIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientId(e.target.value)
@@ -18,10 +28,8 @@ const Credentials = () => {
     apiConnector.post('/api/credentials', {
       clientId: clientId,
       clientSecret: clientSecret
-    })
+    });
   }
-
-
 
   return (
     <div>
@@ -33,6 +41,7 @@ const Credentials = () => {
         <Button color="primary" size="lg" className="w-full" type='submit'>
           Submit
         </Button>
+        <TwitchAuthButton clientId={clientId} />
       </Form>
     </div>
   )

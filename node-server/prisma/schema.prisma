@@ -56,13 +56,13 @@ model Credentials { // Credentials for the Twitch API provided by Twitch
 
 model Tokens { // Tokens for the Twitch API provided by Twitch with refresh.
   id           Int      @id @default(autoincrement())
-  userId       Int
-  isBroadcaster Boolean
+  isBroadcaster Boolean @unique
   accessToken  String
   refreshToken String
   obtainmentTimestamp Int
   expiresIn    Int
   scope        String
+  user         AppUser @relation(fields: [isBroadcaster], references: [isBroadcaster])
 }
 
 model User {
@@ -77,3 +77,26 @@ model User {
   bits      Bits[]
   giftSubs  GiftSubs?
 }
+
+model AppUser {
+  id        Int      @id @default(autoincrement())
+  createdAt DateTime @default(now())
+  userName  String   @unique
+  userDisplayName String
+  userId    Int?      @unique
+  isBroadcaster Boolean @default(false) @unique
+  tokens    Tokens?
+}
+
+// model Viewer {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   userName  String   @unique
+//   userDisplayName String
+//   badges    String?
+//   profileImageUrl String?
+//   subs      Subs?
+//   follows   Follows?
+//   bits      Bits[]
+//   giftSubs  GiftSubs?
+// }

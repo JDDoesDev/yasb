@@ -1,11 +1,9 @@
-import { ApiClient, HelixUser } from "@twurple/api";
-import authProvider from "./services/botAuthService";
-import eventSub from "./events/eventSub";
-import { ChatClient, PrivateMessage } from "@twurple/chat";
-import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials } from "./services/prismaService";
+import eventSub from "./events/EventSub/EventSub";
+import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials, getCredentials } from "./services/prismaService";
 import ObsConnect from "./ws/wsObs";
 import Fastify, { FastifyRequest } from "fastify";
 import cors from "@fastify/cors"
+import ChatSub from "./events/ChatSub/ChatSub";
 
 
 interface Message {
@@ -19,85 +17,20 @@ interface CredentialBody {
   clientSecret: string,
 }
 
-const helixClient = new ApiClient({ authProvider });
-const botName = 'jddoesbotstuff';
-const broadcastObj = await helixClient.users.getUserByName('jddoesdev')
-const botObj = await helixClient.users.getUserByName(botName);
+
 const obs = await ObsConnect();
 const fastify = Fastify({ logger: true });
 await fastify.register(cors, {
   origin: "*",
 });
 
+
+
 const App = () => {
-
-  const chatClient = new ChatClient({ authProvider, channels: ['jddoesdev'] });
-
-  chatClient.connect();
-
-  chatClient.onAuthenticationSuccess(() => {
-    chatClient.onMessage(
-      async (
-        channel: string,
-        user: string,
-        text: string,
-        msg: PrivateMessage
-      ) => {
-        if (msg.userInfo.isMod || msg.userInfo.isBroadcaster) {
-          switch (text.split(" ")[0]) {
-            case "!so":
-              const soUser = text.split(" ")[1];
-              const soHandler = (soUserObj: any) => {
-                if (soUserObj) {
-                  chatClient.say(
-                    channel,
-                    `Go check out ${soUserObj.displayName} at https://twitch.tv/${soUserObj.name}`
-                  );
-                  // Can we get shoutout cooldown?
-                  helixClient.chat.shoutoutUser(
-                    broadcastObj!.id,
-                    soUserObj.id,
-                    botObj!.id
-                  );
-                }
-              };
-              await helixClient.users
-                .getUserByName(soUser)
-                .then(soHandler)
-              break;
-            default:
-              break;
-          }
-        }
-        if (botName !== user.toLowerCase()) {
-          switch (text) {
-            case '!stfu':
-              setTimeout(sayStopIt, 10000,channel, user, text);
-              break;
-            case '!ewi':
-              chatClient.say(
-                channel,
-                `An EWI is an Electronic Wind Instrument. It functions as a midi controller that can be played like a saxophone, clarinet, flute, or other wind instruments. Want to see JD play a song of your choosing? https://streamelements.com/jddoesdev/tip`
-              );
-              break;
-            default:
-              break;
-          }
-        }
-      }
-    );
-  })
-
-  const sayStopIt = (channel: string, user: any, text: any) => {
-    chatClient.say(channel, `Listen, @${user}, That's rude.  Stop it.`);
-  }
-
-
 
   // Add endpoints for react to get data for credits from.
 
   fastify.get('/', async (request, reply) => {
-    console.log(request);
     reply.send({ hello: 'world' });
   })
 
@@ -128,8 +61,16 @@ const App = () => {
 
   fastify.post('/api/credentials', async (request, reply) => {
     const body: CredentialBody = request.body as CredentialBody;
-    console.log(body);
-    const credentials = await setCredentials(body.clientId, body.clientSecret);
+    await setCredentials(body.clientId, body.clientSecret);
+  });
+
+  fastify.get('/api/credentials', async (request, reply) => {
+    const credentials = await getCredentials();
+    reply.send(credentials);
+  });
+
+  fastify.post('/api/token', async (request, reply) => {
+
   });
 
   fastify.listen({ port: 3321}, (err, address) => {
@@ -137,8 +78,7 @@ const App = () => {
     console.log(`Server is now listening on ${address}`);
   });
 
-  eventSub(chatClient);
-
+  // ChatSub();
 }
 
 App();
