@@ -1,7 +1,8 @@
-import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials, getCredentials } from "./services/prismaService";
+import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials, getCredentials, addOrUpdateUser } from "./services/prismaService";
 import ObsConnect from "./ws/wsObs";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
+import { getTwitchToken } from "./services/InitialAuthService";
 const obs = await ObsConnect();
 const fastify = Fastify({ logger: true });
 await fastify.register(cors, {
@@ -39,6 +40,23 @@ const App = () => {
     fastify.get('/api/credentials', async (request, reply) => {
         const credentials = await getCredentials();
         reply.send(credentials);
+    });
+    fastify.post('/api/twitch/auth', async (request, reply) => {
+        const body = request.body;
+        const tokenData = await getTwitchToken(body);
+    });
+    fastify.post('/api/addUser', async (request, reply) => {
+        const body = request.body;
+        const user = await addOrUpdateUser(body).then(console.log);
+    });
+    fastify.get('/api/getUser', async (request, reply) => {
+        const userName = request.query;
+        console.log(userName);
+    });
+    fastify.post('/api/initialAuth', async (request, reply) => {
+        const body = request.body;
+        const tokenData = await getTwitchToken(body);
+        console.log(tokenData);
     });
     fastify.post('/api/token', async (request, reply) => {
     });

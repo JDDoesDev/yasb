@@ -14,5 +14,5 @@ const authProvider = new RefreshingAuthProvider({
     //     "utf-8"
     //   ),
 });
-await authProvider.addUser("216709612", tokenData);
+authProvider.addUser("216709612", tokenData);
 export default authProvider;

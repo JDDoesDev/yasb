@@ -1,4 +1,4 @@
-import { RefreshingAuthProvider } from "@twurple/auth";
+import { RefreshingAuthProvider, exchangeCode } from "@twurple/auth";
 import { promises as fs } from "fs";
 import { getCredentials, getToken } from "./prismaService";
 import { CredentialBody } from "../types/Credentials.types";
@@ -7,11 +7,9 @@ const AuthService = async (isBroadcaster = false) => {
   const { clientId, clientSecret }: CredentialBody = (await getCredentials()) as CredentialBody;
 
   const tokenArray = await getToken(isBroadcaster);
+  if (!tokenArray.hasOwnProperty("accessToken")) {
 
-
-  const tokenData = JSON.parse(
-    await fs.readFile("./tokens/tokens.911278001.json", "utf-8")
-  );
+  }
 
   if (clientId && clientSecret) {
     const authProvider = new RefreshingAuthProvider({
@@ -28,7 +26,7 @@ const AuthService = async (isBroadcaster = false) => {
         )
     );
 
-    await authProvider.addUserForToken(tokenData)
+    // await authProvider.addUserForToken(tokenData)
     return authProvider;
   }
 };

@@ -1,4 +1,4 @@
-import { TwitchScopes } from '../../../../types/TwitchScopes';
+import { TwitchScopes } from '../../../../types/TwitchScopes.types';
 import { Input, Form, Checkbox } from 'react-daisyui';
 
 export const Scopes = () => {

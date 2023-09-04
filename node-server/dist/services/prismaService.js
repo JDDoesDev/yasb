@@ -7,7 +7,7 @@ export const setNewFollows = async (userDisplayName, userName) => {
     // check if follower exists in db and if not, add them.
     // otherwise update.
     try {
-        await prisma.user.upsert({
+        await prisma.viewer.upsert({
             where: {
                 userName: userName,
             },
@@ -38,7 +38,7 @@ export const setNewSubs = async (userDisplayName, userName, totMonths = 1, strea
     // otherwise update.
     // const _date = new Date().toISOString();
     try {
-        await prisma.user.upsert({
+        await prisma.viewer.upsert({
             where: {
                 userName: userName,
             },
@@ -125,7 +125,7 @@ export const setGiftSubs = async (gifter, gifterDisplayName, amount, totAmount) 
     // otherwise update.
     // const _date = new Date().toISOString();
     try {
-        await prisma.user.upsert({
+        await prisma.viewer.upsert({
             where: {
                 userName: gifter,
             },
@@ -247,13 +247,14 @@ export const setCredentials = async (clientId, clientSecret) => {
                 id: 1,
             },
             update: {
+                clientId: clientId,
                 clientSecret: clientSecret,
             },
             create: {
                 clientId: clientId,
                 clientSecret: clientSecret,
             },
-        }).then(console.log);
+        }).then();
     }
     catch (error) {
         console.log(error);
@@ -270,7 +271,37 @@ export const getCredentials = async () => {
         console.log(error);
     }
 };
-export const setToken = async (userType, token) => {
+export const setToken = async (userName, token) => {
+    // check if token exists in db and if not, add them.
+    // also updates/refreshes token.
+    try {
+        await prisma.tokens.upsert({
+            where: {
+                AppUserName: userName,
+            },
+            update: {
+                accessToken: token.accessToken,
+                refreshToken: token.refreshToken,
+                expiresIn: token.expiresIn,
+                scope: token.scope,
+            },
+            create: {
+                accessToken: token.accessToken,
+                refreshToken: token.refreshToken,
+                expiresIn: 0,
+                scope: token.scope,
+                obtainmentTimestamp: 0,
+                User: {
+                    connect: {
+                        userId: token.userId,
+                    },
+                },
+            },
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
 };
 export const getToken = async (isBroadcaster) => {
     // get token from db
@@ -279,7 +310,9 @@ export const getToken = async (isBroadcaster) => {
     try {
         token = await prisma.tokens.findMany({
             where: {
-                isBroadcaster: isBroadcaster,
+                User: {
+                    isBroadcaster: isBroadcaster,
+                },
             }
         });
     }
@@ -287,4 +320,45 @@ export const getToken = async (isBroadcaster) => {
         console.log(error);
     }
     return token;
+};
+export const addOrUpdateUser = async (user) => {
+    // check if user exists in db and if not, add them.
+    // otherwise update.
+    try {
+        await prisma.user.upsert({
+            where: {
+                userName: user.userName,
+            },
+            update: {
+                userName: user.userName,
+                userDisplayName: user === null || user === void 0 ? void 0 : user.userDisplayName,
+                isBroadcaster: user.isBroadcaster,
+                profileImageUrl: user === null || user === void 0 ? void 0 : user.profileImageUrl,
+                userId: user === null || user === void 0 ? void 0 : user.userId,
+            },
+            create: {
+                userName: user.userName,
+                userDisplayName: user === null || user === void 0 ? void 0 : user.userDisplayName,
+                isBroadcaster: user.isBroadcaster,
+                profileImageUrl: user === null || user === void 0 ? void 0 : user.profileImageUrl,
+                userId: user === null || user === void 0 ? void 0 : user.userId,
+            },
+        });
+    }
+    catch (error) {
+        console.log(error);
+    }
+};
+export const getUser = async (userName) => {
+    try {
+        const user = await prisma.user.findUnique({
+            where: {
+                userName: userName,
+            },
+        });
+        return user;
+    }
+    catch (error) {
+        console.log(error);
+    }
 };

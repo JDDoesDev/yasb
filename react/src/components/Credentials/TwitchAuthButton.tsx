@@ -1,18 +1,20 @@
-import React, { useEffect, useState, FC } from 'react'
+import { useEffect, useState, useRef, FC } from 'react'
 import { Input, Form, Button } from 'react-daisyui'
-import { TwitchScopes } from '../../../../types/TwitchScopes';
+import { TwitchScopesAll, TwitchScopesBot } from '../../../../types/TwitchScopes.types';
 
 interface ITwitchAuthButtonProps {
   clientId: string;
+  isBroadcaster: boolean;
 }
 
-const TwitchAuthButton: FC<ITwitchAuthButtonProps> = ({clientId: string}) => {
+const TwitchAuthButton: FC<ITwitchAuthButtonProps> = ({clientId, isBroadcaster = false}) => {
+
+  const twitchScopes = isBroadcaster ? TwitchScopesAll : TwitchScopesBot;
 
   const getScopes = () => {
-    const scopes = Object.values(TwitchScopes).join(' ');
+    const scopes = Object.values(twitchScopes).join(' ');
     const encodedScopes = encodeURIComponent(scopes);
-    console.log(scopes)
-    console.log(encodedScopes);
+
   }
 
   getScopes();

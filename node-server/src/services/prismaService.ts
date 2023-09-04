@@ -1,5 +1,6 @@
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient, User } from "@prisma/client";
 import { TokenBody } from "../types/Credentials.types";
+import { AccessToken } from "@twurple/auth";
 
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
@@ -14,7 +15,7 @@ export const setNewFollows = async (
   // otherwise update.
 
   try {
-    await prisma.user.upsert({
+    await prisma.viewer.upsert({
       where: {
         userName: userName,
       },
@@ -51,7 +52,7 @@ export const setNewSubs = async (
   // const _date = new Date().toISOString();
 
   try {
-    await prisma.user.upsert({
+    await prisma.viewer.upsert({
       where: {
         userName: userName,
       },
@@ -149,7 +150,7 @@ export const setGiftSubs = async (
   // const _date = new Date().toISOString();
 
   try {
-    await prisma.user.upsert({
+    await prisma.viewer.upsert({
       where: {
         userName: gifter,
       },
@@ -276,6 +277,7 @@ export const setCredentials = async (
         id: 1,
       },
       update: {
+        clientId: clientId,
         clientSecret: clientSecret,
       },
       create: {
@@ -300,28 +302,32 @@ export const getCredentials = async () => {
   }
 }
 
-export const setToken = async (isBroadcaster: boolean, token: TokenBody) => {
+export const setToken = async (userName: string | undefined, token: TokenBody) => {
   // check if token exists in db and if not, add them.
   // also updates/refreshes token.
+  const scope = JSON.stringify(token.scope);
   try {
     await prisma.tokens.upsert({
       where: {
-        isBroadcaster: isBroadcaster,
+        AppUserName: userName,
       },
       update: {
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
         expiresIn: token.expiresIn,
-        isBroadcaster: isBroadcaster,
-        scope: token.scope,
+        scope: scope,
       },
       create: {
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
         expiresIn: 0,
-        isBroadcaster: isBroadcaster,
-        scope: token.scope,
+        scope: scope,
         obtainmentTimestamp: 0,
+        User: {
+          connect: {
+              userName: userName,
+            },
+          },
       },
     });
   } catch (error) {
@@ -336,7 +342,9 @@ export const getToken = async (isBroadcaster: boolean) => {
   try {
     token = await prisma.tokens.findMany({
       where: {
-        isBroadcaster: isBroadcaster,
+        User: {
+          isBroadcaster: isBroadcaster,
+        },
       }
     })
   } catch (error) {
@@ -346,6 +354,58 @@ export const getToken = async (isBroadcaster: boolean) => {
 
 }
 
-export const getUserId = (isBroadcaster: boolean) => {
+export const addOrUpdateUser = async (user: User) => {
+  // check if user exists in db and if not, add them.
+  // otherwise update.
+  try {
+    await prisma.user.upsert({
+      where: {
+        userName: user.userName,
+      },
+      update: {
+        userName: user.userName,
+        userDisplayName: user?.userDisplayName,
+        isBroadcaster: user.isBroadcaster,
+        profileImageUrl: user?.profileImageUrl,
+        userId: user?.userId,
+      },
+      create: {
+        userName: user.userName,
+        userDisplayName: user?.userDisplayName,
+        isBroadcaster: user.isBroadcaster,
+        profileImageUrl: user?.profileImageUrl,
+        userId: user?.userId,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+  }
+}
 
+export const getUserByUsername = async (userName: string) => {
+  try {
+    const user = await prisma.user.findUnique({
+      where: {
+        userName: userName,
+      },
+    });
+    return user;
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+export const getUserByRole = async (userRole: string) => {
+  try {
+    const isBroadcaster = userRole === 'twitch-role:streamer' ? true : false
+    const user = await prisma.user.findUnique({
+      where: {
+        isBroadcaster: isBroadcaster,
+      },
+    });
+    return user;
+  }
+  catch (error) {
+    console.log(error);
+  }
 }
