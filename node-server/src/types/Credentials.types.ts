@@ -8,7 +8,7 @@ export type TokenBody = {
   refreshToken: string;
   obtainmentTimestamp: number;
   expiresIn: number;
-  scope: string[];
+  scope?: string[];
 }
 
 export type TwitchAuthInfo = {

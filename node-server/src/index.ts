@@ -17,6 +17,8 @@ import { CredentialBody, TokenBody, TwitchAuthInfo } from "./types/Credentials.t
 import ChatSub from "./events/ChatSub/ChatSub";
 import { getTwitchToken } from "./services/InitialAuthService";
 import { User } from "@prisma/client";
+import path from 'node:path';
+import fastifyStatic from "@fastify/static";
 
 
 interface Message {
@@ -30,6 +32,9 @@ const fastify = Fastify({ logger: true });
 await fastify.register(cors, {
   origin: "*",
 });
+await fastify.register(fastifyStatic, {
+  root: path.join(__dirname, '../client/build'),
+})
 
 
 
@@ -93,9 +98,13 @@ const App = () => {
 
   fastify.post('/api/initialAuth', async (request, reply) => {
     const body: TwitchAuthInfo = request.body as TwitchAuthInfo;
+    const isBroadcaster = body.state === 'twitch-role:streamer' ? true : false;
     const tokenData = await getTwitchToken(body);
-    const user = await getUserByRole(body.state);
-    const token = await setToken(user?.userName, tokenData as TokenBody)
+    const user = await getUserByRole(isBroadcaster);
+    const token = await setToken(user as unknown as User, tokenData as TokenBody)
+    if (token) {
+
+    }
 
     console.log(tokenData);
   });

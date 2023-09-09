@@ -1,4 +1,4 @@
-import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials, getCredentials, addOrUpdateUser } from "./services/prismaService";
+import { getNewFollows, getNewSubs, getResubs, getGiftSubs, getNewBits, setCredentials, getCredentials, addOrUpdateUser, getUserByRole, setToken } from "./services/prismaService";
 import ObsConnect from "./ws/wsObs";
 import Fastify from "fastify";
 import cors from "@fastify/cors";
@@ -55,7 +55,12 @@ const App = () => {
     });
     fastify.post('/api/initialAuth', async (request, reply) => {
         const body = request.body;
+        const isBroadcaster = body.state === 'twitch-role:streamer' ? true : false;
         const tokenData = await getTwitchToken(body);
+        const user = await getUserByRole(isBroadcaster);
+        const token = await setToken(user, tokenData);
+        if (token) {
+        }
         console.log(tokenData);
     });
     fastify.post('/api/token', async (request, reply) => {

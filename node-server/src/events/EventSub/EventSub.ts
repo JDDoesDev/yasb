@@ -1,4 +1,4 @@
-import authProvider from "../../services/userAuthService";
+import AuthService from "../../services/AuthService";
 import { ApiClient } from "@twurple/api";
 import { ChatClient } from "@twurple/chat";
 import { EventSubWsListener } from "@twurple/eventsub-ws";
@@ -6,6 +6,7 @@ import { setNewFollows, setNewBits, setNewSubs, setGiftSubs } from "../../servic
 import ObsConnect from "../../ws/wsObs";
 
 const obs = await ObsConnect();
+const authProvider = await AuthService();
 
 const EventSub = (chatClient: ChatClient) => {
 

@@ -1,6 +1,10 @@
 import { PrismaClient, User } from "@prisma/client";
 import { TokenBody } from "../types/Credentials.types";
 import { AccessToken } from "@twurple/auth";
+import { TwitchScopesAll, TwitchScopesBot } from "../types/TwitchScopes.types";
+
+const allScopes = JSON.stringify(Object.values(TwitchScopesAll));
+const botScopes = JSON.stringify(Object.values(TwitchScopesBot));
 
 const prisma = new PrismaClient({
   log: ["query", "info", "warn", "error"],
@@ -302,34 +306,36 @@ export const getCredentials = async () => {
   }
 }
 
-export const setToken = async (userName: string | undefined, token: TokenBody) => {
+export const setToken = async (user: User, token: TokenBody) => {
   // check if token exists in db and if not, add them.
   // also updates/refreshes token.
-  const scope = JSON.stringify(token.scope);
+
   try {
     await prisma.tokens.upsert({
       where: {
-        AppUserName: userName,
+        AppUserName: user.userName,
       },
       update: {
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
         expiresIn: token.expiresIn,
-        scope: scope,
+        obtainmentTimestamp: BigInt(token.obtainmentTimestamp),
+        scope: user.isBroadcaster ? allScopes : botScopes,
       },
       create: {
         accessToken: token.accessToken,
         refreshToken: token.refreshToken,
         expiresIn: 0,
-        scope: scope,
+        scope: user.isBroadcaster ? allScopes : botScopes,
         obtainmentTimestamp: 0,
         User: {
           connect: {
-              userName: userName,
-            },
+            userName: user.userName,
           },
+        },
       },
     });
+    return true
   } catch (error) {
     console.log(error);
   }
@@ -338,19 +344,27 @@ export const setToken = async (userName: string | undefined, token: TokenBody) =
 export const getToken = async (isBroadcaster: boolean) => {
   // get token from db
   // return token
-  let token: TokenBody | object = [];
+
   try {
-    token = await prisma.tokens.findMany({
+    const token = await prisma.tokens.findMany({
       where: {
         User: {
           isBroadcaster: isBroadcaster,
         },
       }
     })
+
+    const tokenBody = token.shift();
+    const updateTokenBody = tokenBody as unknown as TokenBody;
+    if (updateTokenBody.scope) {
+      updateTokenBody.scope = JSON.parse(tokenBody?.scope as string);
+      updateTokenBody.obtainmentTimestamp = Number(tokenBody?.obtainmentTimestamp);
+    }
+
+    return updateTokenBody;
   } catch (error) {
     console.log(error);
   }
-  return token;
 
 }
 
@@ -395,9 +409,22 @@ export const getUserByUsername = async (userName: string) => {
     console.log(error);
   }
 }
-export const getUserByRole = async (userRole: string) => {
+export const getUserByUserId = async (userId: string) => {
   try {
-    const isBroadcaster = userRole === 'twitch-role:streamer' ? true : false
+    const user = await prisma.user.findUnique({
+      where: {
+        userId: userId,
+      },
+    });
+    return user;
+  }
+  catch (error) {
+    console.log(error);
+  }
+}
+
+export const getUserByRole = async (isBroadcaster = false) => {
+  try {
     const user = await prisma.user.findUnique({
       where: {
         isBroadcaster: isBroadcaster,

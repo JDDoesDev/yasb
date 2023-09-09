@@ -2,7 +2,7 @@ import { useSearchParams } from 'react-router-dom';
 import apiConnector from '../../utils/apiConnector';
 
 const RefreshToken = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
+  const [searchParams] = useSearchParams();
 
   if (searchParams.get('error')) {
     // Should redirect to login page with error.

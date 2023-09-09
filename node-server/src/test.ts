@@ -1,23 +1,12 @@
-import { getCredentials } from "./services/prismaService";
-import EventEmitter from "events";
+import { RefreshingAuthProvider } from "@twurple/auth";
+import AuthService from "./services/AuthService.js";
+import { ApiClient } from "@twurple/api";
 
-interface CredentialBody {
-  id: number;
-  clientId: string;
-  clientSecret: string;
-};
+const authProvider = await AuthService() as unknown as RefreshingAuthProvider ;
+const api = new ApiClient({ authProvider });
+const user = await api.users.getUserByName('jddoesdev');
 
-class Credentials extends EventEmitter {
+console.log(user);
 
-  async gotCredentials() {
-    await getCredentials().then((res) => {
-      this.emit('gotCredentials', res);
-    })
-  }
-}
 
-const credentials = new Credentials();
 
-credentials.on('gotCredentials', (res) => {
-  console.log(res);
-})

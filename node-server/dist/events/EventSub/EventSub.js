@@ -1,9 +1,10 @@
-import authProvider from "../../services/userAuthService";
+import AuthService from "../../services/AuthService";
 import { ApiClient } from "@twurple/api";
 import { EventSubWsListener } from "@twurple/eventsub-ws";
 import { setNewFollows, setNewBits, setNewSubs, setGiftSubs } from "../../services/prismaService";
 import ObsConnect from "../../ws/wsObs";
 const obs = await ObsConnect();
+const authProvider = await AuthService();
 const EventSub = (chatClient) => {
     const uid = "216709612";
     const bid = "911278001";

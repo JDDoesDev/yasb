@@ -58,7 +58,7 @@ model Tokens {
   id                  Int     @id @default(autoincrement())
   accessToken         String
   refreshToken        String
-  obtainmentTimestamp Int     @default(0)
+  obtainmentTimestamp BigInt     @default(0)
   expiresIn           Int     @default(0)
   scope               String
   User             User @relation(fields: [AppUserName], references: [userName])
@@ -83,7 +83,7 @@ model User {
   createdAt       DateTime @default(now())
   userName        String   @unique
   userDisplayName String?
-  userId          Int?     @unique
+  userId          String?     @unique
   isBroadcaster   Boolean  @unique @default(false)
   profileImageUrl String?
   tokens          Tokens?

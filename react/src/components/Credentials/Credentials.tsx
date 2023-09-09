@@ -1,7 +1,6 @@
 import React, { useEffect, useState } from 'react'
 import { Input, Form, Button } from 'react-daisyui'
 import apiConnector from '../../utils/apiConnector'
-import TwitchAuthButton from './TwitchAuthButton'
 import { useNavigate } from 'react-router-dom'
 
 const Credentials = () => {
