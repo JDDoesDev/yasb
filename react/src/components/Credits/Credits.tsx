@@ -15,7 +15,7 @@ const Credits = () => {
   const [creditsCount, setCreditsCount] = useState<number>(0);
   const [gotCreditsCount, setGotCreditsCount] = useState<boolean>(false);
 
-  const url = 'http://127.0.0.1:3321';
+  // const url = 'http://127.0.0.1:3321';
 
   // Poll database for new follows
   const getFollows = async () => {

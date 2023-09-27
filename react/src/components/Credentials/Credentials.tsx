@@ -1,10 +1,20 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Input, Form, Button } from 'react-daisyui'
 import apiConnector from '../../utils/apiConnector'
+import { useNavigate } from 'react-router-dom'
 
 const Credentials = () => {
+
   const [clientId, setClientId] = useState<string>('')
   const [clientSecret, setClientSecret] = useState<string>('')
+
+  useEffect(() => {
+    if (clientId === '' && clientSecret === '') {
+    apiConnector.get('/api/credentials')
+      .then((res) => { setClientId(res.data.clientId); setClientSecret(res.data.clientSecret)})
+      .catch((err) => console.error(err))
+    }
+  }, [clientId, clientSecret])
 
   const handleClientIdChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientId(e.target.value)
@@ -12,16 +22,18 @@ const Credentials = () => {
   const handleClientSecretChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setClientSecret(e.target.value)
   }
+  const navigate = useNavigate();
 
-  const handleCredentialSubmit = (e: React.FormEvent) => {
+  const handleCredentialSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    apiConnector.post('/api/credentials', {
+    const response = await apiConnector.post('/api/credentials', {
       clientId: clientId,
       clientSecret: clientSecret
     })
+    if (response.status === 200) {
+      navigate('/login', { replace: false })
+    }
   }
-
-
 
   return (
     <div>

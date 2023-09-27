@@ -13,7 +13,7 @@ datasource db {
 model Follows {
   id         Int      @id @default(autoincrement())
   createdAt  DateTime @default(now())
-  follower   User     @relation(fields: [followerId], references: [id])
+  follower   Viewer   @relation(fields: [followerId], references: [id])
   followerId Int      @unique
   followDate String
 }
@@ -21,8 +21,8 @@ model Follows {
 model Subs {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
-  sub          User     @relation(fields: [subId], references: [id])
-  subId        Int    @unique
+  sub          Viewer   @relation(fields: [subId], references: [id])
+  subId        Int      @unique
   subDateOrig  String
   subDateRenew String
   streak       Int
@@ -32,7 +32,7 @@ model Subs {
 model Bits {
   id        Int      @id @default(autoincrement())
   createdAt DateTime @default(now())
-  user      User     @relation(fields: [userId], references: [id])
+  user      Viewer   @relation(fields: [userId], references: [id])
   userId    Int
   cheerDate String
   bitCount  Int
@@ -41,38 +41,63 @@ model Bits {
 model GiftSubs {
   id           Int      @id @default(autoincrement())
   createdAt    DateTime @default(now())
-  gifter       User     @relation(fields: [gifterId], references: [id])
+  gifter       Viewer   @relation(fields: [gifterId], references: [id])
   gifterId     Int      @unique
-  amount       Int
   totAmount    Int
   lastGiftDate String
+  lastGiftSubs Int
 }
+
 model Credentials {
-  id           Int      @id @default(autoincrement())
-  clientId     String   @unique
-  clientSecret String   @unique
+  id           Int    @id @default(autoincrement())
+  clientId     String @unique
+  clientSecret String @unique
 }
 
 model Tokens {
-  id           Int      @id @default(autoincrement())
-  userId       Int
-  isBroadcaster Boolean
-  accessToken  String
-  refreshToken String
-  obtainmentTimestamp Int
-  expiresIn    Int
-  scope        String
+  id                  Int     @id @default(autoincrement())
+  accessToken         String
+  refreshToken        String
+  obtainmentTimestamp BigInt     @default(0)
+  expiresIn           Int     @default(0)
+  scope               String
+  User             User @relation(fields: [AppUserName], references: [userName])
+  AppUserName         String  @unique
 }
 
+// model User {
+//   id        Int      @id @default(autoincrement())
+//   createdAt DateTime @default(now())
+//   userName  String   @unique
+//   userDisplayName String
+//   badges    String?
+//   profileImageUrl String?
+//   subs      Subs?
+//   follows   Follows?
+//   bits      Bits[]
+//   giftSubs  GiftSubs?
+// }
+
 model User {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  userName  String   @unique
-  userDisplayName String
-  badges    String?
+  id              Int      @id @default(autoincrement())
+  createdAt       DateTime @default(now())
+  userName        String   @unique
+  userDisplayName String?
+  userId          String?     @unique
+  isBroadcaster   Boolean  @unique @default(false)
   profileImageUrl String?
-  subs      Subs?
-  follows   Follows?
-  bits      Bits[]
-  giftSubs  GiftSubs?
+  tokens          Tokens?
+}
+
+model Viewer {
+  id              Int       @id @default(autoincrement())
+  createdAt       DateTime  @default(now())
+  userName        String    @unique
+  userDisplayName String
+  badges          String?
+  profileImageUrl String?
+  subs            Subs?
+  follows         Follows?
+  bits            Bits[]
+  giftSubs        GiftSubs?
 }

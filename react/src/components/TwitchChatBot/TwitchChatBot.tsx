@@ -1,3 +1,4 @@
+import { ChatClient, ChatMessage } from '@twurple/chat';
 import { useEffect, useState, FC } from 'react'
 
 interface MessageObject {
@@ -8,7 +9,7 @@ interface MessageObject {
 const TwitchChatBot: FC = () => {
   const [messages, setMessages] = useState<MessageObject[]>([]);
 
-  const parseEmotes = (message: string, { emotes }: ChatUserstate) => {
+  const parseEmotes = (message: string, { emotes }: any) => {
     if (!emotes) {
       return message;
     }
@@ -18,7 +19,7 @@ const TwitchChatBot: FC = () => {
       const emoteId = emote[0];
 
       // may be more than one if same emote used multiple times
-      const positions = emote[1];
+      const positions: string[] = emote[1] as string[];
       const currentPosition = positions[0];
       const [start, end] = currentPosition.split('-');
 
@@ -57,56 +58,60 @@ const TwitchChatBot: FC = () => {
   }
 
   useEffect(() => {
-    const client = new tmi.Client({
+    const client = new ChatClient({
       channels: ["jddoesdev"],
+      webSocket: true,
     });
+
+    console.log(client);
 
     const handleChatMessage = (
       _channel: string,
-      tags: ChatUserstate,
-      message: string,
-      self: boolean
+      user: string,
+      text: string,
+      msg: ChatMessage
     ) => {
-
+      console.log(msg, user, text);
       if (!self) {
-        const username = tags['display-name'];
-        const emoteMessage = parseEmotes(message, tags);
-        const newMessage = {
-          username: username,
-          emoteMessage: emoteMessage,
-        }
+        // const username = msg.userInfo.displayName;
+        // const emoteMessage = parseEmotes(text, tags);
+        // const newMessage = {
+        //   username: username,
+        //   emoteMessage: emoteMessage,
+        // }
 
-        if (messages.length > 10) {
-          messages.shift();
-        }
-        setMessages(messages => [...messages, newMessage]);
+        // if (messages.length > 10) {
+        //   messages.shift();
+        // }
+        // setMessages(messages => [...messages, newMessage]);
       }
 
     }
-    client.connect().catch(console.error);
-    client.on('message', handleChatMessage);
+    client.connect();
+    client.onMessage(handleChatMessage);
 
     return () => {
-      client.disconnect()
+      client.quit()
     }
   }, [messages])
 
   return (
-    <div className="message message-wrapper">
-      <ul className="message-container">
-        { messages.map(({ username, emoteMessage }, index) => (
-          <li key={ index } className="message-item">
-            <span className="message-username">
-              { username }
-            </span>
-            <span className="message-message" dangerouslySetInnerHTML={{
-              __html: emoteMessage
-              }}
-            />
-          </li>
-        )) }
-      </ul>
-    </div>
+    <></>
+    // <div className="message message-wrapper">
+    //   <ul className="message-container">
+    //     { messages.map(({ username, emoteMessage }, index) => (
+    //       <li key={ index } className="message-item">
+    //         <span className="message-username">
+    //           { username }
+    //         </span>
+    //         <span className="message-message" dangerouslySetInnerHTML={{
+    //           __html: emoteMessage
+    //           }}
+    //         />
+    //       </li>
+    //     )) }
+    //   </ul>
+    // </div>
   )
 }
 

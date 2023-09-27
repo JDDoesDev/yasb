@@ -1,16 +1,14 @@
-import authProvider from "../services/userAuthService";
+import AuthService from "../../services/AuthService";
 import { ApiClient } from "@twurple/api";
 import { EventSubWsListener } from "@twurple/eventsub-ws";
-import { setNewFollows, setNewBits, setNewSubs, setGiftSubs } from "../services/prismaService";
-import ObsConnect from "../ws/wsObs";
+import { setNewFollows, setNewBits, setNewSubs, setGiftSubs } from "../../services/prismaService";
+import ObsConnect from "../../ws/wsObs";
 const obs = await ObsConnect();
-const eventSub = (chatClient) => {
+const authProvider = await AuthService();
+const EventSub = (chatClient) => {
     const uid = "216709612";
     const bid = "911278001";
     const apiClient = new ApiClient({ authProvider });
-    // const getUid = async () => await apiClient.users.getUserByName('jddoesdev');
-    // getUid().then(user => user)
-    //   .then(console.log)
     const listener = new EventSubWsListener({
         apiClient
     });
@@ -26,11 +24,14 @@ const eventSub = (chatClient) => {
                 msg += ` That's ${e.cumulativeAmount} subs total!`;
             }
             chatClient.say('jddoesdev', msg);
-            setGiftSubs(e.gifterDisplayName, e.amount, e.cumulativeAmount);
+            setGiftSubs(e.gifterName, e.gifterDisplayName, e.amount, e.cumulativeAmount);
+        }
+        else {
+            chatClient.say('jddoesdev', `An anonymous user gifted ${e.amount} subs!`);
         }
     });
     const bitsSubscribe = listener.onChannelCheer(uid, (e) => {
-        var _a;
+        var _a, _b;
         if (!e.isAnonymous) {
             switch (e.bits) {
                 case 69:
@@ -48,7 +49,7 @@ const eventSub = (chatClient) => {
                     }
                     break;
             }
-            setNewBits(e.bits, (_a = e.userDisplayName) !== null && _a !== void 0 ? _a : '', e.userName);
+            setNewBits(e.bits, (_a = e.userDisplayName) !== null && _a !== void 0 ? _a : '', (_b = e.userName) !== null && _b !== void 0 ? _b : '');
         }
     });
     const followSubscribe = listener.onChannelFollow(uid, uid, (e) => {
@@ -56,8 +57,10 @@ const eventSub = (chatClient) => {
         setNewFollows(e.userDisplayName, e.userName);
     });
     const subSubscribe = listener.onChannelSubscription(uid, (e) => {
-        chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
-        setNewSubs(e.userDisplayName, e.userName);
+        if (!e.isGift) {
+            chatClient.say('jddoesdev', `${e.userDisplayName} subscribed!!`);
+            setNewSubs(e.userDisplayName, e.userName);
+        }
     });
     // Dear future me,
     // Please fix present me's code. It's bad. I'm sorry.
@@ -71,5 +74,7 @@ const eventSub = (chatClient) => {
     const streamLive = listener.onStreamOnline(uid, (e) => {
         chatClient.say('jddoesdev', `Stream is live!`);
     });
+    const shoutoutCreated = listener.onChannelShoutoutCreate(uid, uid, (e) => {
+    });
 };
-export default eventSub;
+export default EventSub;
